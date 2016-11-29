@@ -8,22 +8,19 @@ end
 def show
 
 end
-def new
+  def new
+    @pic = current_user.pics.build
+  end
 
-@pic = current_user.pics.build
+  def create
+    @pic = current_user.pics.build(pic_params)
+    if @pic.save
+      redirect_to @pic,notice: "Yesss! It was posted!"
+    else
+      render 'new'
+    end
+  end
 
-
-end
-
-def create
-
-  @pic = current_user.pics.build(pic_params)
-       if @pic.save
-        redirect_to @pic, notice: "Cool you did it!"
-       else
-        render 'new'
-       end
-end
 
 def edit
 
@@ -44,7 +41,7 @@ end
 
  private
 def pic_params
-    params.require(:pic).permit(:description, :title)
+    params.require(:pic).permit(:description, :title, :image)
 end
 
 def find_pic
