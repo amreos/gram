@@ -1,14 +1,16 @@
 class PicsController < ApplicationController
-    before_action :find_pic, only: [:show, :edit, :update, :destroy, :upvote]
-    before_action :authenticate_user!, except: [:index, :show]
- 
-def index
-@pics = Pic.all.order("created_at DESC")
-end
 
-def show
+  before_action :find_pic, only: [:show, :edit, :update, :destroy, :upvote]
+  before_action :authenticate_user!, except: [:index, :show]
 
-end
+  def index
+    @pics = Pic.all.order("created_at DESC")
+  end
+
+  def show
+
+  end
+
   def new
     @pic = current_user.pics.build
   end
@@ -22,35 +24,49 @@ end
     end
   end
 
+  def edit
 
-def edit
+  end
 
-end
+  def update
+      @user ||= User.find_by(id: session[:user_id])
 
-def update
-    if @pic.update(pic_params)
-        redirect_to @pic, notice: "update succesful"
-    else
-        render 'edit'
+    if @pic.user_id == current_user.id
+        
+        @pic.update(pic_params)
+      redirect_to @pic, notice: "Congrats! Pic was updated"
+    elsif  @pic.user_id != current_user.id
+    redirect_to root_path, notice: "You are not allowed to do that!!"
+else
+      render 'edit'
     end
-end
-def destroy
-   @pic.destroy
-   redirect_to root_path
-end
-def upvote
+  end
+
+  def destroy
+       if @pic.user_id == current_user.id
+    @pic.destroy
+    redirect_to root_path
+     elsif  @pic.user_id != current_user.id
+    redirect_to root_path, notice: "You are not allowed to do that!!"
+else
+          redirect_to root_path
+
+    end
+  end
+
+  def upvote
     @pic.upvote_by current_user
     redirect_to :back
-end
+  end
 
+  private
 
- private
-def pic_params
-    params.require(:pic).permit(:description, :title, :image)
-end
+  def pic_params
+    params.require(:pic).permit(:title,:description, :image)
+  end
 
-def find_pic
-   @pic = Pic.find(params[:id])
+  def find_pic
+    @pic = Pic.find(params[:id])
+  end
 
-end
 end
